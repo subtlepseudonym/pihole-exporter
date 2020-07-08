@@ -5,15 +5,12 @@
 This project is intended to be run in docker.
 ```bash
 docker build \
-	--build-arg "pihole_api_token=very_secret" \
 	--tag subtlepseudonym/pihole-exporter:latest \
 	--file ./Dockerfile \
 	.
 ```
 Note: if you're using pihole, you may want to set `--network=host`
 
-A value for `PIHOLE_API_TOKEN` is not necessary if the corresponding build arg
-was set when creating the image, but I've included it below as an example.
 ```bash
 docker create \
 	--name pihole-exporter \
