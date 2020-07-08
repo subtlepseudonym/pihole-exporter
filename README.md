@@ -10,6 +10,7 @@ docker build \
 	--file ./Dockerfile \
 	.
 ```
+Note: if you're using pihole, you may want to set `--network=host`
 
 A value for `PIHOLE_API_TOKEN` is not necessary if the corresponding build arg
 was set when creating the image, but I've included it below as an example.
