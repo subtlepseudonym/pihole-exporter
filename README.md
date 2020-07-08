@@ -33,3 +33,7 @@ counts into total counts for a list of metrics that, in the worst case, could be
 large without soaking up tons of memory or losing data is a non-trivial problem. If you're
 using this project and really want total counts for those metrics, querying from the pihole
 FTL database is a less expensive and far easier solution.
+
+### TODO
+
+- compress binary in dockerfile with upx
