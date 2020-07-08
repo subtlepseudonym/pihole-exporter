@@ -232,6 +232,4 @@ func updateMetrics(piholeHost, token string) {
 	for queryType, percent := range stats.QueryTypes {
 		queryTypes.WithLabelValues(queryType).Set(percent)
 	}
-
-	log.Println("metrics updated")
 }
