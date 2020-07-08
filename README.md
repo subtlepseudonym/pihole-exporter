@@ -9,7 +9,8 @@ docker build \
 	--file ./Dockerfile \
 	.
 ```
-Note: if you're using pihole, you may want to set `--network=host`
+Alternatively, you can run `make docker` if you've cloned the repo. This will automatically
+tag the image as well.
 
 ```bash
 docker create \
@@ -26,3 +27,9 @@ to represent the data scraped from Pihole. While it has been expressed that scra
 I prefer something closer to the [prometheus instrumentation guidelines](https://prometheus.io/docs/practices/instrumentation/). Specifically,
 there are many values exposed by the pihole API that perform daily counts. Rather than using
 a gauge to represent these, I wanted to use a counter.
+
+The `top_*` metrics are still represented with gauges in this project because converting daily
+counts into total counts for a list of metrics that, in the worst case, could become extremely
+large without soaking up tons of memory or losing data is a non-trivial problem. If you're
+using this project and really want total counts for those metrics, querying from the pihole
+FTL database is a less expensive and far easier solution.
