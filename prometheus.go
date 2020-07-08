@@ -1,8 +1,8 @@
 package main
 
 import (
-	"net/http"
 	"log"
+	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -10,20 +10,20 @@ import (
 const namespace = "pihole"
 
 var (
-	blockedDomains prometheus.Gauge
-	dnsQueries *DailyCounter
-	blockedAds *DailyCounter
-	forwardedQueries *DailyCounter
-	cachedQueries *DailyCounter
-	uniqueDomains *DailyCounter
-	clients *DailyCounter
-	uniqueClients *DailyCounter
-	replies *prometheus.GaugeVec
-	topDomains *prometheus.GaugeVec
-	topAdDomains *prometheus.GaugeVec
-	topSources *prometheus.GaugeVec
+	blockedDomains      prometheus.Gauge
+	dnsQueries          *DailyCounter
+	blockedAds          *DailyCounter
+	forwardedQueries    *DailyCounter
+	cachedQueries       *DailyCounter
+	uniqueDomains       *DailyCounter
+	clients             *DailyCounter
+	uniqueClients       *DailyCounter
+	replies             *prometheus.GaugeVec
+	topDomains          *prometheus.GaugeVec
+	topAdDomains        *prometheus.GaugeVec
+	topSources          *prometheus.GaugeVec
 	forwardDestinations *prometheus.GaugeVec
-	queryTypes *prometheus.GaugeVec
+	queryTypes          *prometheus.GaugeVec
 )
 
 // DailyCounter is used to convert daily counts into monotonically
@@ -36,7 +36,7 @@ type DailyCounter struct {
 func (d *DailyCounter) GetIncrease(newValue float64) float64 {
 	v := newValue
 
-	if v - d.Value >= 0 {
+	if v-d.Value >= 0 {
 		v -= d.Value
 	}
 	d.Value = newValue
@@ -53,117 +53,117 @@ func buildMetrics() *prometheus.Registry {
 	registry := prometheus.NewRegistry()
 
 	blockedDomains = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "blocked_domains",
+		Name:      "blocked_domains",
 		Namespace: namespace,
-		Help: "Total number of domains blocked by pi-hole",
+		Help:      "Total number of domains blocked by pi-hole",
 	})
 
 	dnsQueries = &DailyCounter{
 		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "dns_queries",
+			Name:      "dns_queries",
 			Namespace: namespace,
-			Help: "Total number of dns queries",
+			Help:      "Total number of dns queries",
 		}),
 	}
 
 	blockedAds = &DailyCounter{
 		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "blocked_ads",
+			Name:      "blocked_ads",
 			Namespace: namespace,
-			Help: "Total number of blocked dns queries",
+			Help:      "Total number of blocked dns queries",
 		}),
 	}
 
 	forwardedQueries = &DailyCounter{
 		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "forwarded_queries",
+			Name:      "forwarded_queries",
 			Namespace: namespace,
-			Help: "Total number of forwarded dns queries",
+			Help:      "Total number of forwarded dns queries",
 		}),
 	}
 
 	cachedQueries = &DailyCounter{
 		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "cached_queries",
+			Name:      "cached_queries",
 			Namespace: namespace,
-			Help: "Total number of dns query cache hits",
+			Help:      "Total number of dns query cache hits",
 		}),
 	}
 
 	uniqueDomains = &DailyCounter{
 		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "unique_domains",
+			Name:      "unique_domains",
 			Namespace: namespace,
-			Help: "Total number of unique requested domains",
+			Help:      "Total number of unique requested domains",
 		}),
 	}
 
 	clients = &DailyCounter{
 		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "clients",
+			Name:      "clients",
 			Namespace: namespace,
-			Help: "Total number of clients",
+			Help:      "Total number of clients",
 		}),
 	}
 
 	uniqueClients = &DailyCounter{
 		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "unique_clients",
+			Name:      "unique_clients",
 			Namespace: namespace,
-			Help: "Total number of unique clients",
+			Help:      "Total number of unique clients",
 		}),
 	}
 
 	replies = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "replies",
+			Name:      "replies",
 			Namespace: namespace,
-			Help: "Number of dns replies for a given type",
+			Help:      "Number of dns replies for a given type",
 		},
 		[]string{"type"},
 	)
 
 	topDomains = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "top_domains",
+			Name:      "top_domains",
 			Namespace: namespace,
-			Help: "Number of queries for today's top ten most queried domains",
+			Help:      "Number of queries for today's top ten most queried domains",
 		},
 		[]string{"domain"},
 	)
 
 	topAdDomains = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "top_ad_domains",
+			Name:      "top_ad_domains",
 			Namespace: namespace,
-			Help: "Number of queries for today's top ten most blocked domains",
+			Help:      "Number of queries for today's top ten most blocked domains",
 		},
 		[]string{"domain"},
 	)
 
 	topSources = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "top_sources",
+			Name:      "top_sources",
 			Namespace: namespace,
-			Help: "Number of queries from today's top ten most active clients",
+			Help:      "Number of queries from today's top ten most active clients",
 		},
 		[]string{"source"},
 	)
 
 	forwardDestinations = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "forward_destinations",
+			Name:      "forward_destinations",
 			Namespace: namespace,
-			Help: "Percentage of queries forwarded to a given destination",
+			Help:      "Percentage of queries forwarded to a given destination",
 		},
 		[]string{"destination"},
 	)
 
 	queryTypes = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "query_types",
+			Name:      "query_types",
 			Namespace: namespace,
-			Help: "Percentage of queries by type",
+			Help:      "Percentage of queries by type",
 		},
 		[]string{"type"},
 	)

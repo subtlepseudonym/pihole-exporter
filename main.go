@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -11,20 +11,20 @@ import (
 )
 
 const (
-	defaultHost       = "0.0.0.0"
-	defaultPort       = 9617
-	defaultTimeout    = 5 * time.Second
+	defaultHost    = "0.0.0.0"
+	defaultPort    = 9617
+	defaultTimeout = 5 * time.Second
 
 	metricsEndpoint   = "/metrics"
 	readinessEndpoint = "/readiness"
 	livenessEndpoint  = "/liveness"
 
-	piholeHostEnv = "PIHOLE_HOST"
+	piholeHostEnv  = "PIHOLE_HOST"
 	piholeTokenEnv = "PIHOLE_API_TOKEN"
 )
 
 var (
-	piholeHost string
+	piholeHost     string
 	piholeAPIToken string
 )
 
