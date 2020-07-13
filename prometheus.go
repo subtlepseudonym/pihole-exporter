@@ -82,8 +82,8 @@ func buildMetrics() *prometheus.Registry {
 }
 
 func updateMetrics(piholeDB *sql.DB, since int64) int64 {
-	now := time.Now().Unix()
-	stats, err := queryPihole(piholeDB, since, now)
+	now := time.Now()
+	stats, err := queryPihole(piholeDB, since, now.Unix())
 	if err != nil {
 		log.Printf("Unable to query pihole database: %s", err)
 		return since
@@ -111,8 +111,8 @@ func updateMetrics(piholeDB *sql.DB, since int64) int64 {
 		ClientDNSQueries.WithLabelValues(client).Add(num)
 	}
 
-	duration := float64(time.Now().Unix() - now)
+	duration := time.Since(now).Seconds()
 	HTTPRequestDuration.Set(duration)
 
-	return now
+	return now.Unix()
 }
