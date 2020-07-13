@@ -4,6 +4,11 @@
 ### Added
 - Binary compression in docker image
 - Changelog
+- mattn/go-sqlite3 dependency
+
+### Changed
+- Use pihole database rather than API
+- Alter exposed metrics to better fit database source
 
 ## [0.0.2] - 2020-07-07
 ### Changed
