@@ -14,6 +14,7 @@ SELECT
 	type,
 	status,
 	client,
+	forward,
 	count(id)
 FROM
 	queries
@@ -23,12 +24,13 @@ WHERE
 GROUP BY
 	type,
 	status,
-	client
+	client,
+	forward
 ;`
 
 type PiholeStats struct {
 	QueryTypes          map[string]float64
-	AllowedQueries      map[string]float64
+	AllowedQueries      map[string]map[string]float64
 	BlockedQueries      map[string]float64
 	BlockedCNAMEQueries map[string]float64
 	ClientQueries       map[string]float64
@@ -66,7 +68,7 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 
 	stats := &PiholeStats{
 		QueryTypes:          make(map[string]float64),
-		AllowedQueries:      make(map[string]float64),
+		AllowedQueries:      make(map[string]map[string]float64),
 		BlockedQueries:      make(map[string]float64),
 		BlockedCNAMEQueries: make(map[string]float64),
 		ClientQueries:       make(map[string]float64),
@@ -80,21 +82,28 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 	for rows.Next() {
 		var queryType, status int
 		var numQueries float64
-		var client string
+		var client, forward string
 
-		err = rows.Scan(&queryType, &status, &client, &numQueries)
+		err = rows.Scan(&queryType, &status, &client, forward, &numQueries)
 		if err != nil {
 			return nil, fmt.Errorf("scan row: %w", err)
 		}
 
 		typeKey := queryTypes[queryType-1]
 		stats.QueryTypes[typeKey] += numQueries
+
 		stats.ClientQueries[client] += numQueries
 
 		statusKey := queryStatuses[status]
 		switch status {
 		case 0, 2, 3:
-			stats.AllowedQueries[statusKey] += numQueries
+			if forward != "" {
+				forward = "cache"
+			}
+			if stats.AllowedQueries[statusKey] == nil {
+				stats.AllowedQueries[statusKey] = make(map[string]float64)
+			}
+			stats.AllowedQueries[statusKey][forward] += numQueries
 		case 1, 4, 5, 6, 7, 8:
 			stats.BlockedQueries[statusKey] += numQueries
 		case 9, 10, 11:

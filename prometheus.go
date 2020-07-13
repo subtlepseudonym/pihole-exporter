@@ -35,7 +35,7 @@ func buildMetrics() *prometheus.Registry {
 			Name:      "allowed_dns_queries",
 			Help:      "Forwarded or cached DNS queries",
 		},
-		[]string{"status"},
+		[]string{"status", "forwarded_to"},
 	)
 
 	BlockedDNSQueries = prometheus.NewCounterVec(
@@ -82,8 +82,10 @@ func updateMetrics(piholeDB *sql.DB, since int64) int64 {
 		DNSQueries.WithLabelValues(queryType).Add(num)
 	}
 
-	for status, num := range stats.AllowedQueries {
-		AllowedDNSQueries.WithLabelValues(status).Add(num)
+	for status, upstreamMap := range stats.AllowedQueries {
+		for upstream, num := range upstreamMap {
+			AllowedDNSQueries.WithLabelValues(status, upstream).Add(num)
+		}
 	}
 
 	for status, num := range stats.BlockedQueries {
