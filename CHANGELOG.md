@@ -5,6 +5,7 @@
 - Binary compression in docker image
 - Changelog
 - mattn/go-sqlite3 dependency
+- Add stat for metrics handler duration
 
 ### Changed
 - Use pihole database rather than API
