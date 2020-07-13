@@ -1,8 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"log"
-	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -10,179 +11,56 @@ import (
 const namespace = "pihole"
 
 var (
-	blockedDomains      prometheus.Gauge
-	dnsQueries          *DailyCounter
-	blockedAds          *DailyCounter
-	forwardedQueries    *DailyCounter
-	cachedQueries       *DailyCounter
-	uniqueDomains       *DailyCounter
-	clients             *DailyCounter
-	uniqueClients       *DailyCounter
-	replies             *prometheus.GaugeVec
-	topDomains          *prometheus.GaugeVec
-	topAdDomains        *prometheus.GaugeVec
-	topSources          *prometheus.GaugeVec
-	forwardDestinations *prometheus.GaugeVec
-	queryTypes          *prometheus.GaugeVec
+	DNSQueries        *prometheus.CounterVec
+	AllowedDNSQueries *prometheus.CounterVec
+	BlockedDNSQueries *prometheus.CounterVec
+	ClientDNSQueries  *prometheus.CounterVec // queries with client label
 )
-
-// DailyCounter is used to convert daily counts into monotonically
-// increasing counters
-type DailyCounter struct {
-	prometheus.Counter
-	Value float64
-}
-
-func (d *DailyCounter) GetIncrease(newValue float64) float64 {
-	v := newValue
-
-	if v-d.Value >= 0 {
-		v -= d.Value
-	}
-	d.Value = newValue
-
-	return v
-}
-
-func (d *DailyCounter) Update(newValue float64) {
-	v := d.GetIncrease(newValue)
-	d.Add(v)
-}
 
 func buildMetrics() *prometheus.Registry {
 	registry := prometheus.NewRegistry()
 
-	blockedDomains = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name:      "blocked_domains",
-		Namespace: namespace,
-		Help:      "Total number of domains blocked by pi-hole",
-	})
-
-	dnsQueries = &DailyCounter{
-		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name:      "dns_queries",
+	DNSQueries = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
 			Namespace: namespace,
-			Help:      "Total number of dns queries",
-		}),
-	}
-
-	blockedAds = &DailyCounter{
-		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name:      "blocked_ads",
-			Namespace: namespace,
-			Help:      "Total number of blocked dns queries",
-		}),
-	}
-
-	forwardedQueries = &DailyCounter{
-		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name:      "forwarded_queries",
-			Namespace: namespace,
-			Help:      "Total number of forwarded dns queries",
-		}),
-	}
-
-	cachedQueries = &DailyCounter{
-		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name:      "cached_queries",
-			Namespace: namespace,
-			Help:      "Total number of dns query cache hits",
-		}),
-	}
-
-	uniqueDomains = &DailyCounter{
-		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name:      "unique_domains",
-			Namespace: namespace,
-			Help:      "Total number of unique requested domains",
-		}),
-	}
-
-	clients = &DailyCounter{
-		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name:      "clients",
-			Namespace: namespace,
-			Help:      "Total number of clients",
-		}),
-	}
-
-	uniqueClients = &DailyCounter{
-		Counter: prometheus.NewCounter(prometheus.CounterOpts{
-			Name:      "unique_clients",
-			Namespace: namespace,
-			Help:      "Total number of unique clients",
-		}),
-	}
-
-	replies = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name:      "replies",
-			Namespace: namespace,
-			Help:      "Number of dns replies for a given type",
+			Name:      "dns_queries_total",
+			Help:      "Total number of DNS queries with type labels",
 		},
 		[]string{"type"},
 	)
 
-	topDomains = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name:      "top_domains",
+	AllowedDNSQueries = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
 			Namespace: namespace,
-			Help:      "Number of queries for today's top ten most queried domains",
+			Name:      "allowed_dns_queries",
+			Help:      "Forwarded or cached DNS queries",
 		},
-		[]string{"domain"},
+		[]string{"status"},
 	)
 
-	topAdDomains = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name:      "top_ad_domains",
+	BlockedDNSQueries = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
 			Namespace: namespace,
-			Help:      "Number of queries for today's top ten most blocked domains",
+			Name:      "blocked_dns_queries",
+			Help:      "Blocked DNS queries",
 		},
-		[]string{"domain"},
+		[]string{"blocked_by", "deep_cname"},
 	)
 
-	topSources = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name:      "top_sources",
+	ClientDNSQueries = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
 			Namespace: namespace,
-			Help:      "Number of queries from today's top ten most active clients",
+			Name:      "client_dns_queries",
+			Help:      "Number of DNS queries with client labels",
 		},
-		[]string{"source"},
-	)
-
-	forwardDestinations = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name:      "forward_destinations",
-			Namespace: namespace,
-			Help:      "Percentage of queries forwarded to a given destination",
-		},
-		[]string{"destination"},
-	)
-
-	queryTypes = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name:      "query_types",
-			Namespace: namespace,
-			Help:      "Percentage of queries by type",
-		},
-		[]string{"type"},
+		[]string{"client"},
 	)
 
 	metrics := []prometheus.Collector{
-		blockedDomains,
-		dnsQueries,
-		blockedAds,
-		forwardedQueries,
-		cachedQueries,
-		uniqueDomains,
-		clients,
-		uniqueClients,
-		replies,
-		topDomains,
-		topAdDomains,
-		topSources,
-		forwardDestinations,
-		queryTypes,
+		DNSQueries,
+		AllowedDNSQueries,
+		BlockedDNSQueries,
+		ClientDNSQueries,
 	}
 
 	for _, metric := range metrics {
@@ -192,44 +70,33 @@ func buildMetrics() *prometheus.Registry {
 	return registry
 }
 
-func updateMetrics(piholeHost, token string) {
-	stats, err := queryPihole(http.DefaultClient, piholeHost, token)
+func updateMetrics(piholeDB *sql.DB, since int64) int64 {
+	now := time.Now().Unix()
+	stats, err := queryPihole(piholeDB, since, now)
 	if err != nil {
-		log.Printf("Unable to query pihole API: %s", err)
-		return
+		log.Printf("Unable to query pihole database: %s", err)
+		return since
 	}
 
-	blockedDomains.Set(stats.DomainsBeingBlocked)
-	dnsQueries.Update(stats.DNSQueriesToday)
-	blockedAds.Update(stats.AdsBlockedToday)
-	forwardedQueries.Update(stats.QueriesForwarded)
-	cachedQueries.Update(stats.QueriesCached)
-	uniqueDomains.Update(stats.UniqueDomains)
-	clients.Update(stats.ClientsEverSeen)
-	uniqueClients.Update(stats.UniqueClients)
-
-	replies.WithLabelValues("nodata").Set(stats.ReplyNODATA)
-	replies.WithLabelValues("nxdomain").Set(stats.ReplyNXDOMAIN)
-	replies.WithLabelValues("cname").Set(stats.ReplyCNAME)
-	replies.WithLabelValues("ip").Set(stats.ReplyIP)
-
-	for domain, queries := range stats.TopQueries {
-		topDomains.WithLabelValues(domain).Set(queries)
+	for queryType, num := range stats.QueryTypes {
+		DNSQueries.WithLabelValues(queryType).Add(num)
 	}
 
-	for domain, queries := range stats.TopAds {
-		topAdDomains.WithLabelValues(domain).Set(queries)
+	for status, num := range stats.AllowedQueries {
+		AllowedDNSQueries.WithLabelValues(status).Add(num)
 	}
 
-	for source, queries := range stats.TopSources {
-		topSources.WithLabelValues(source).Set(queries)
+	for status, num := range stats.BlockedQueries {
+		BlockedDNSQueries.WithLabelValues(status, "false").Add(num)
 	}
 
-	for destination, percent := range stats.ForwardDestinations {
-		forwardDestinations.WithLabelValues(destination).Set(percent)
+	for status, num := range stats.BlockedCNAMEQueries {
+		BlockedDNSQueries.WithLabelValues(status, "true").Add(num)
 	}
 
-	for queryType, percent := range stats.QueryTypes {
-		queryTypes.WithLabelValues(queryType).Set(percent)
+	for client, num := range stats.ClientQueries {
+		ClientDNSQueries.WithLabelValues(client).Add(num)
 	}
+
+	return now
 }

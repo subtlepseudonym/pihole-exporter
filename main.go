@@ -1,12 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -19,27 +21,26 @@ const (
 	readinessEndpoint = "/readiness"
 	livenessEndpoint  = "/liveness"
 
-	piholeHostEnv  = "PIHOLE_HOST"
-	piholeTokenEnv = "PIHOLE_API_TOKEN"
+	sqlite3Driver = "sqlite3"
+	piholeDSNEnv  = "PIHOLE_DSN"
 )
 
 var (
-	piholeHost     string
-	piholeAPIToken string
+	lastUpdate int64
+	piholeDB   *sql.DB
 )
 
 func init() {
-	host := os.Getenv(piholeHostEnv)
-	if host == "" {
-		log.Fatalln(piholeHostEnv, "must be set")
+	piholeDSN := os.Getenv(piholeDSNEnv)
+	if piholeDSN == "" {
+		log.Fatalln(piholeDSNEnv, "must be set")
 	}
-	piholeHost = host
 
-	token := os.Getenv(piholeTokenEnv)
-	if token == "" {
-		log.Fatalln(piholeTokenEnv, "must be set")
+	var err error
+	piholeDB, err = sql.Open(sqlite3Driver, piholeDSN)
+	if err != nil {
+		log.Fatalf("open db connection: %s", err)
 	}
-	piholeAPIToken = token
 }
 
 func main() {
@@ -66,9 +67,14 @@ func main() {
 
 func metricsHandler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handler.ServeHTTP(w, r)
+		unchanged := lastUpdate
+		lastUpdate = updateMetrics(piholeDB, lastUpdate)
+		if lastUpdate == unchanged {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-		updateMetrics(piholeHost, piholeAPIToken)
+		handler.ServeHTTP(w, r)
 	})
 }
 
