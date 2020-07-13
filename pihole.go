@@ -80,10 +80,13 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 		return nil, fmt.Errorf("query db: %w", err)
 	}
 	for rows.Next() {
-		var queryType, status int
-		var numQueries float64
-		var client string
-		var forward sql.NullString
+		var (
+			queryType  int
+			status     int
+			numQueries float64
+			client     string
+			forward    sql.NullString
+		)
 
 		err = rows.Scan(&queryType, &status, &client, &forward, &numQueries)
 		if err != nil {
