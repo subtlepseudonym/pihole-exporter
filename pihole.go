@@ -99,7 +99,7 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 		switch status {
 		case 0, 2, 3:
 			upstream := "cache"
-			if forward.Valid {
+			if forward.Valid || status == 0 {
 				upstream = forward.String
 			}
 			if stats.AllowedQueries[statusKey] == nil {
