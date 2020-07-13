@@ -82,9 +82,10 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 	for rows.Next() {
 		var queryType, status int
 		var numQueries float64
-		var client, forward string
+		var client string
+		var forward sql.NullString
 
-		err = rows.Scan(&queryType, &status, &client, forward, &numQueries)
+		err = rows.Scan(&queryType, &status, &client, &forward, &numQueries)
 		if err != nil {
 			return nil, fmt.Errorf("scan row: %w", err)
 		}
@@ -97,13 +98,14 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 		statusKey := queryStatuses[status]
 		switch status {
 		case 0, 2, 3:
-			if forward != "" {
-				forward = "cache"
+			upstream := "cache"
+			if forward.Valid {
+				upstream = forward.String
 			}
 			if stats.AllowedQueries[statusKey] == nil {
 				stats.AllowedQueries[statusKey] = make(map[string]float64)
 			}
-			stats.AllowedQueries[statusKey][forward] += numQueries
+			stats.AllowedQueries[statusKey][upstream] += numQueries
 		case 1, 4, 5, 6, 7, 8:
 			stats.BlockedQueries[statusKey] += numQueries
 		case 9, 10, 11:
