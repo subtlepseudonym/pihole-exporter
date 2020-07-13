@@ -3,9 +3,8 @@ WORKDIR /workspace/
 COPY . .
 
 RUN apk update && \
-	apk --no-cache add upx
-RUN CGO_ENABLED=0 GOOS=linux go build -a -o pihole-exporter *.go
-RUN upx -f --brute pihole-exporter
+	apk --no-cache add gcc g++
+RUN CGO_ENABLED=1 GOOS=linux go build -a --ldflags '-linkmode external -extldflags "-static"' -o pihole-exporter *.go
 
 FROM scratch
 WORKDIR /root/
