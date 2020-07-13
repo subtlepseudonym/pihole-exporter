@@ -1,6 +1,10 @@
 # Changelog
 
-## [0.0.3] -
+## [0.0.4] - 2020-07-13
+### Fixed
+- Removed dockerfile binary compression
+
+## [0.0.3] - 2020-07-14
 ### Added
 - Binary compression in docker image
 - Changelog
