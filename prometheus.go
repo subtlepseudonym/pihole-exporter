@@ -18,7 +18,7 @@ var (
 	AllowedDNSQueries   *prometheus.CounterVec
 	BlockedDNSQueries   *prometheus.CounterVec
 	ClientDNSQueries    *prometheus.CounterVec // queries with client label
-	HTTPRequestDuration prometheus.Counter
+	HTTPRequestDuration *prometheus.CounterVec
 )
 
 func buildMetrics() *prometheus.Registry {
@@ -60,11 +60,14 @@ func buildMetrics() *prometheus.Registry {
 		[]string{"client"},
 	)
 
-	HTTPRequestDuration = prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: exporterNamespace,
-		Name:      "http_request_duration_seconds",
-		Help:      "How long this exporter takes to respond when scraped by prometheus",
-	})
+	HTTPRequestDuration = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: exporterNamespace,
+			Name:      "http_request_duration_seconds",
+			Help:      "How long this exporter takes to respond when scraped by prometheus",
+		},
+		[]string{"handler"},
+	)
 
 	metrics := []prometheus.Collector{
 		DNSQueries,
@@ -112,7 +115,7 @@ func updateMetrics(piholeDB *sql.DB, since int64) int64 {
 	}
 
 	duration := time.Since(now).Seconds()
-	HTTPRequestDuration.Add(duration)
+	HTTPRequestDuration.WithLabelValues("/metrics").Add(duration)
 
 	return now.Unix()
 }
