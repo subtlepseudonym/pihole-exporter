@@ -1,4 +1,7 @@
 # Changelog
+## [0.0.6] - 2020-10-28
+### Fixed
+- Prevent counting requests for all time on restart
 
 ## [0.0.5] - 2020-10-28
 ### Added
