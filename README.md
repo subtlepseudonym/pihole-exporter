@@ -15,25 +15,26 @@ tag the image as well.
 ```bash
 docker create \
 	--name pihole-exporter \
-	--env "PIHOLE_HOST=local.pihole.address" \
-	--env "PIHOLE_API_TOKEN=very_secret" \
+	--env "PIHOLE_DSN=admin:password@/path/to/ftl.db?options" \
 	subtlepseudonym/pihole-exporter:latest
 ```
 
 ### Motivation
 As of creating this project, the top two hits on google for `pihole exporter` use only gauges
-to represent the data scraped from Pihole. While it has been expressed that scraped metrics
+to represent the data scraped from Pihole. It has been expressed that scraped metrics
 [should be instrumented from the point of view of the thing being instrumented](https://github.com/prometheus-net/prometheus-net/issues/63#issuecomment-360070401),
-I prefer something closer to the [prometheus instrumentation guidelines](https://prometheus.io/docs/practices/instrumentation/). Specifically,
-there are many values exposed by the pihole API that perform daily counts. Rather than using
-a gauge to represent these, I wanted to use a counter.
+implying that the use of gauges is the correct way to instrument the pihole API. Despite this,
+I hewed closer to the [first-party prometheus instrumentation guidelines](https://prometheus.io/docs/practices/instrumentation/) and sought to provide
+metrics whose type better represented the nature of the value being measured.
 
-The `top_*` metrics are still represented with gauges in this project because converting daily
-counts into total counts for a list of metrics that, in the worst case, could become extremely
-large without soaking up tons of memory or losing data is a non-trivial problem. If you're
-using this project and really want total counts for those metrics, querying from the pihole
-FTL database is a less expensive and far easier solution.
-
-### TODO
-
-- compress binary in dockerfile with upx
+Specifically,
+there are many values exposed by the pihole API that perform daily counts. These daily counts
+are generated with a rolling stepwise function such that all queries (or blocked ads, clients, etc)
+in the last 23 hours plus those since the last hour are counted and the value is updated every hour.
+In practice, this leads to values that decrease by the amount of queries received during the upcoming
+one hour block, yesterday. I believe that this doesn't do a very good job of representing what should
+be monotonically increasing values; you can't un-make a DNS request. To retrieve absolute counts, I
+chose to make requests against the FTL database rather than the pihole API. This makes requests to
+the `/metrics` endpoint take a bit longer and require that this exporter has access to the pihole
+database file (which could be a prohibitive requirement depending upon your setup), but I believe
+it provides better metrics.
