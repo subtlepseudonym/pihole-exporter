@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5] - 2020-10-28
+### Added
+- Handler label to http request duration
+
+### Changed
+- Change http request duration to counter from gauge
+
 ## [0.0.4] - 2020-07-13
 ### Fixed
 - Removed dockerfile binary compression
