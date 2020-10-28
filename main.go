@@ -41,6 +41,8 @@ func init() {
 	if err != nil {
 		log.Fatalf("open db connection: %s", err)
 	}
+
+	lastUpdate = time.Now().Unix()
 }
 
 func main() {
