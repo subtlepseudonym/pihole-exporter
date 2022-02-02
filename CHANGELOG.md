@@ -1,4 +1,11 @@
 # Changelog
+## [0.0.7] - 2022-02-01
+### Added
+- Support status codes 12, 13, and 14
+
+### Fixed
+- Prevent panic on unknown status codes
+
 ## [0.0.6] - 2020-10-28
 ### Fixed
 - Prevent counting requests for all time on restart
