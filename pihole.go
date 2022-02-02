@@ -96,6 +96,10 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 			return nil, fmt.Errorf("scan row: %w", err)
 		}
 
+		if queryType >= len(queryTypes) {
+			return nil, fmt.Errorf("unknown query type: %d", queryType)
+		}
+
 		typeKey := queryTypes[queryType-1]
 		stats.QueryTypes[typeKey] += numQueries
 
