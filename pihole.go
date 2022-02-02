@@ -98,9 +98,9 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 
 		stats.ClientQueries[client] += numQueries
 
-		statusKey := queryStatuses[status]
 		switch status {
 		case 0, 2, 3:
+			statusKey := queryStatuses[status]
 			upstream := "cache"
 			if forward.Valid || status == 0 {
 				upstream = forward.String
@@ -110,8 +110,10 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 			}
 			stats.AllowedQueries[statusKey][upstream] += numQueries
 		case 1, 4, 5, 6, 7, 8:
+			statusKey := queryStatuses[status]
 			stats.BlockedQueries[statusKey] += numQueries
 		case 9, 10, 11:
+			statusKey := queryStatuses[status]
 			stats.BlockedCNAMEQueries[statusKey] += numQueries
 		default:
 			return nil, fmt.Errorf("unexpected status: %d", status)
