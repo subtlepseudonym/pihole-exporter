@@ -45,6 +45,14 @@ var queryTypes = []string{
 	"PTR",
 	"TXT",
 	"NAPTR",
+	"MX",
+	"DS",
+	"RRSIG",
+	"DNSKEY",
+	"NS",
+	"OTHER",
+	"SVCB",
+	"HTTPS",
 }
 
 var queryStatuses = []string{
