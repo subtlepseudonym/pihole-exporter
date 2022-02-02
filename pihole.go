@@ -60,6 +60,9 @@ var queryStatuses = []string{
 	"gravity",         // during deep CNAME inspection
 	"regex_blacklist", // during deep CNAME inspection
 	"exact_blacklist", // during deep CNAME inspection
+	"retried_query",
+	"retried_ignored_query",
+	"already_forwarded",
 }
 
 func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
@@ -99,7 +102,7 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 		stats.ClientQueries[client] += numQueries
 
 		switch status {
-		case 0, 2, 3:
+		case 0, 2, 3, 12, 13, 14:
 			statusKey := queryStatuses[status]
 			upstream := "cache"
 			if forward.Valid || status == 0 {
