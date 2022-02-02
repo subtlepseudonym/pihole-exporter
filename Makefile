@@ -1,13 +1,17 @@
 BINARY=pihole-exporter
 BUILD=$$(vtag --no-meta)
+TAG="${BINARY}:${BUILD}"
 
-default: docker
+default: test docker
 
 build: format
 	go build -o ${BINARY} -v ./cmd/notes
 
 docker: format
-	docker build --network=host -t ${BINARY}:${BUILD} -f Dockerfile .
+	docker build --network=host -t ${TAG} -f Dockerfile .
+
+test: format
+	gotest --race ./...
 
 format fmt:
 	go fmt -x ./...
