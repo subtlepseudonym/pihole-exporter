@@ -5,7 +5,7 @@ TAG="${BINARY}:${BUILD}"
 default: test docker
 
 build: format
-	go build -o ${BINARY} -v ./cmd/notes
+	go build -o ${BINARY} -v .
 
 docker: format
 	docker build --network=host -t ${TAG} -f Dockerfile .
