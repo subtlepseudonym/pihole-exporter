@@ -1,5 +1,14 @@
 BINARY=pihole-exporter
-BUILD=$$(([[ ! -z "$$(which vtag)" ]] && vtag --no-meta) || echo '0.0.1-unknown')
+
+BUILD=$$( \
+	if command -v vtag &>/dev/null; then \
+		vtag --no-meta; \
+	else \
+		printf \
+			'0.0.1-unknown+%s' \
+			"$$(git rev-list -n1 HEAD | head -c7)"; \
+	fi \
+)
 TAG="${BINARY}:${BUILD}"
 
 default: test docker
