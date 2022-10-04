@@ -12,7 +12,7 @@ docker build \
 Alternatively, you can run `make docker` if you've cloned the repo. This will automatically
 tag the image as well.
 
-NOTE: you must have `vtag` from [subtlepseudonym/utilities](https://github.com/subtlepseudonym/utilities) installed for auto-tagging to work.
+NOTE: you should have `vtag` from [subtlepseudonym/utilities](https://github.com/subtlepseudonym/utilities) installed for auto-tagging to work properly. Without it, docker version tag will be `0.0.1-unknown`
 
 ```bash
 docker create \
