@@ -1,5 +1,5 @@
 BINARY=pihole-exporter
-BUILD=$$(vtag --no-meta)
+BUILD=$$(([[ ! -z "$$(which vtag)" ]] && vtag --no-meta) || echo '0.0.1-unknown')
 TAG="${BINARY}:${BUILD}"
 
 default: test docker
