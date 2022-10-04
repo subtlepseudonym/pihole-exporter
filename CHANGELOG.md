@@ -1,10 +1,15 @@
 # Changelog
-## [0.0.7] - 2022-02-01
+## [0.0.8] - 2022-02-02
 ### Added
-- Support status codes 12, 13, and 14
+- Support query types MX, DS, RRSIG, DNSKEY, NS, OTHER, SVCB, HTTPS
 
 ### Fixed
 - Prevent panic on unknown status codes
+- Fixed changelog
+
+## [0.0.7] - 2022-02-01
+### Added
+- Support status codes 12, 13, and 14
 
 ## [0.0.6] - 2020-10-28
 ### Fixed
