@@ -65,9 +65,9 @@ var queryStatuses = []string{
 	"known_upstream",
 	"unspecified_upstream",
 	"nxdomain_upstream",
-	"gravity",         // during deep CNAME inspection
-	"regex_blacklist", // during deep CNAME inspection
-	"exact_blacklist", // during deep CNAME inspection
+	"gravity_cname",         // during deep CNAME inspection
+	"regex_blacklist_cname", // during deep CNAME inspection
+	"exact_blacklist_cname", // during deep CNAME inspection
 	"retried_query",
 	"retried_ignored_query",
 	"already_forwarded",
