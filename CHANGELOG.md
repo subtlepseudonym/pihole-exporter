@@ -1,4 +1,12 @@
 # Changelog
+## [0.0.9] - 2022-11-04
+### Added
+- Include static curl binary in docker image for healthchecks
+- Default tag value when vtag not available
+
+### Fixed
+- Fix numeric bounds on queryType
+
 ## [0.0.8] - 2022-02-02
 ### Added
 - Support query types MX, DS, RRSIG, DNSKEY, NS, OTHER, SVCB, HTTPS
