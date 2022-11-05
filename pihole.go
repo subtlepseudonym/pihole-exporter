@@ -71,6 +71,8 @@ var queryStatuses = []string{
 	"retried_query",
 	"retried_ignored_query",
 	"already_forwarded",
+	"database_busy",
+	"special_domain",
 }
 
 func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
@@ -124,7 +126,7 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 				stats.AllowedQueries[statusKey] = make(map[string]float64)
 			}
 			stats.AllowedQueries[statusKey][upstream] += numQueries
-		case 1, 4, 5, 6, 7, 8:
+		case 1, 4, 5, 6, 7, 8, 15, 16:
 			statusKey := queryStatuses[status]
 			stats.BlockedQueries[statusKey] += numQueries
 		case 9, 10, 11:
