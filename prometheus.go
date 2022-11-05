@@ -18,6 +18,7 @@ var (
 	AllowedDNSQueries   *prometheus.CounterVec
 	BlockedDNSQueries   *prometheus.CounterVec
 	ClientDNSQueries    *prometheus.CounterVec // queries with client label
+	QueryReplies        *prometheus.CounterVec
 	HTTPRequestDuration *prometheus.CounterVec
 )
 
@@ -60,6 +61,15 @@ func buildMetrics() *prometheus.Registry {
 		[]string{"client"},
 	)
 
+	QueryReplies = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: piholeNamespace,
+			Name:      "query_replies",
+			Help:      "Number of DNS query replies with reply type labels",
+		},
+		[]string{"type"},
+	)
+
 	HTTPRequestDuration = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: exporterNamespace,
@@ -74,6 +84,7 @@ func buildMetrics() *prometheus.Registry {
 		AllowedDNSQueries,
 		BlockedDNSQueries,
 		ClientDNSQueries,
+		QueryReplies,
 		HTTPRequestDuration,
 	}
 
@@ -112,6 +123,10 @@ func updateMetrics(piholeDB *sql.DB, since int64) int64 {
 
 	for client, num := range stats.ClientQueries {
 		ClientDNSQueries.WithLabelValues(client).Add(num)
+	}
+
+	for reply, num := range stats.QueryReplies {
+		QueryReplies.WithLabelValues(reply).Add(num)
 	}
 
 	duration := time.Since(now).Seconds()

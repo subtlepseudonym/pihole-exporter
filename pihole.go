@@ -15,6 +15,7 @@ SELECT
 	status,
 	client,
 	forward,
+	reply_type,
 	count(id)
 FROM
 	queries
@@ -25,7 +26,8 @@ GROUP BY
 	type,
 	status,
 	client,
-	forward
+	forward,
+	reply_type
 ;`
 
 type PiholeStats struct {
@@ -75,6 +77,23 @@ var queryStatuses = []string{
 	"special_domain",
 }
 
+var replyTypes = []string{
+	"unknown",
+	"nodata",
+	"nxdomain",
+	"cname",
+	"ip",
+	"domain",
+	"rrname",
+	"servfail",
+	"refused",
+	"notimp",
+	"other",
+	"dnssec",
+	"none", // query was dropped intentionally
+	"blob", // binary data
+}
+
 func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultDBTimeout)
 	defer cancel()
@@ -85,6 +104,7 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 		BlockedQueries:      make(map[string]float64),
 		BlockedCNAMEQueries: make(map[string]float64),
 		ClientQueries:       make(map[string]float64),
+		QueryReplies:        make(map[string]float64),
 	}
 
 	query := fmt.Sprintf(piholeQuery, since, now)
@@ -96,12 +116,13 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 		var (
 			queryType  int
 			status     int
-			numQueries float64
 			client     string
 			forward    sql.NullString
+			replyType  int
+			numQueries float64
 		)
 
-		err = rows.Scan(&queryType, &status, &client, &forward, &numQueries)
+		err = rows.Scan(&queryType, &status, &client, &forward, &replyType, &numQueries)
 		if err != nil {
 			return nil, fmt.Errorf("scan row: %w", err)
 		}
@@ -112,6 +133,13 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 
 		typeKey := queryTypes[queryType-1]
 		stats.QueryTypes[typeKey] += numQueries
+
+		if replyType < 1 || replyType > len(replyTypes) {
+			return nil, fmt.Errorf("unknown reply type: %d", replyType)
+		}
+
+		replyKey := replyTypes[replyType-1]
+		stats.QueryReplies[replyKey] += numQueries
 
 		stats.ClientQueries[client] += numQueries
 
