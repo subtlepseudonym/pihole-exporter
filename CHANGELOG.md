@@ -1,4 +1,12 @@
 # Changelog
+## [0.0.10] -
+### Added
+- Support for database_busy and special_domain query statuses
+- Reply type metric
+
+### Changed
+- Renamed query statuses blocked during deep cname inspection
+
 ## [0.0.9] - 2022-11-04
 ### Added
 - Include static curl binary in docker image for healthchecks
