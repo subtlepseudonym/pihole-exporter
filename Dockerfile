@@ -11,4 +11,8 @@ WORKDIR /root/
 COPY --from=0 /workspace/pihole-exporter /root/pihole-exporter
 COPY --from=tarampampam/curl:latest /bin/curl /curl
 
+EXPOSE 9617/tcp
+HEALTHCHECK --interval=60s --timeout=2s --retries=3 --start-period=2s \
+	CMD ["/curl", "--fail", "--url", "http://localhost:9000/health"]
+
 CMD ["/root/pihole-exporter"]

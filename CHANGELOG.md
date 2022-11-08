@@ -3,6 +3,7 @@
 ### Added
 - Support for database_busy and special_domain query statuses
 - Reply type metric
+- Healthcheck defined in docker image
 
 ### Changed
 - Renamed query statuses blocked during deep cname inspection
