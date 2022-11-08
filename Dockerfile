@@ -13,6 +13,6 @@ COPY --from=tarampampam/curl:latest /bin/curl /root/curl
 
 EXPOSE 9617/tcp
 HEALTHCHECK --interval=60s --timeout=2s --retries=3 --start-period=2s \
-	CMD ["/root/curl", "--fail", "--url", "http://localhost:9000/readiness"]
+	CMD ["/root/curl", "--fail", "--url", "http://localhost:9617/readiness"]
 
 CMD ["/root/pihole-exporter"]
