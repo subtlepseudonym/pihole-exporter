@@ -1,7 +1,7 @@
 BINARY=pihole-exporter
 
 BUILD=$$( \
-	if command -v vtag &>/dev/null; then \
+	if command -v vtag 1>/dev/null 2>&1; then \
 		vtag --no-meta; \
 	else \
 		printf \
