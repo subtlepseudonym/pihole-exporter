@@ -1,5 +1,5 @@
 # Changelog
-## [0.0.10] -
+## [0.0.10] - 2022-11-08
 ### Added
 - Support for database_busy and special_domain query statuses
 - Reply type metric
