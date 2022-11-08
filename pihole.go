@@ -36,6 +36,7 @@ type PiholeStats struct {
 	BlockedQueries      map[string]float64
 	BlockedCNAMEQueries map[string]float64
 	ClientQueries       map[string]float64
+	QueryReplies        map[string]float64
 }
 
 var queryTypes = []string{
