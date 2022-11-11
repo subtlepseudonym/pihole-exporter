@@ -9,7 +9,7 @@ BUILD=$$( \
 			"$$(git rev-list -n1 HEAD | head -c7)"; \
 	fi \
 )
-TAG="${BINARY}:${BUILD}"
+TAG="subtlepseudonym/${BINARY}:${BUILD}"
 
 default: test docker
 

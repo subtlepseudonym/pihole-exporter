@@ -1,4 +1,8 @@
 # Changelog
+## [0.0.11] -
+### Changed
+- Use subtlepseudonym/healthcheck for docker healthcheck
+
 ## [0.0.10] - 2022-11-08
 ### Added
 - Support for database_busy and special_domain query statuses
