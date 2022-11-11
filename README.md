@@ -2,7 +2,17 @@
 
 [![docker](https://img.shields.io/docker/cloud/build/subtlepseudonym/pihole-exporter)](https://hub.docker.com/r/subtlepseudonym/pihole-exporter)
 
-### Running this project
+### Running the container
+
+```bash
+docker create \
+	--name pihole-exporter \
+	--env "PIHOLE_DSN=file:/pihole/pihole-FTL.db?_query_only" \
+	--volume "/local/path/to/ftl.db:/pihole/pihole-FTL.db:ro" \
+	subtlepseudonym/pihole-exporter:latest
+```
+
+### Building this project
 
 This project is intended to be run in docker.
 ```bash
@@ -16,12 +26,16 @@ tag the image as well.
 
 NOTE: you should have `vtag` from [subtlepseudonym/utilities](https://github.com/subtlepseudonym/utilities) installed for auto-tagging to work properly. Without it, docker version tag will be `0.0.1-unknown`
 
-```bash
-docker create \
-	--name pihole-exporter \
-	--env "PIHOLE_DSN=admin:password@/path/to/ftl.db?options" \
-	subtlepseudonym/pihole-exporter:latest
-```
+### Metrics
+
+| Metric | Description |
+| ------ | ----------- |
+| pihole_dns_queries_total | Total number of DNS queries with type labels |
+| pihole_client_dns_queries | Total number of DNS queries with client labels |
+| pihole_allowed_dns_queries | Forwarded or cached DNS queries |
+| pihole_blocked_dns_queries | Blocked DNS queries |
+| pihole_query_replies | DNS query replies with reply type labels |
+| pihole_exporter_http_request_duration_seconds | How long this exporter takes to respond on the `/metrics` endpoint |
 
 ### Motivation
 As of creating this project, the top two hits on google for `pihole exporter` use only gauges
