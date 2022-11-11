@@ -1,6 +1,6 @@
 ## Pihole Exporter
 
-[![docker](https://img.shields.io/docker/cloud/build/subtlepseudonym/pihole-exporter)](https://hub.docker.com/r/subtlepseudonym/pihole-exporter)
+[![github](https://img.shields.io/github/checks-status/subtlepseudonym/pihole-exporter/master?logo=github)](https://github.com/subtlepseudonym/pihole-exporter) [![docker_pulls](https://img.shields.io/docker/pulls/subtlepseudonym/pihole-exporter)](https://hub.docker.com/r/subtlepseudonym/pihole-exporter)
 
 ### Running the container
 
