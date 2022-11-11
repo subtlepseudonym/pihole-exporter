@@ -1,5 +1,7 @@
 ## Pihole Exporter
 
+[![docker](https://img.shields.io/docker/cloud/build/subtlepseudonym/pihole-exporter)](https://hub.docker.com/r/subtlepseudonym/pihole-exporter)
+
 ### Running this project
 
 This project is intended to be run in docker.
