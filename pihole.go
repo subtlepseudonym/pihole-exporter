@@ -135,7 +135,7 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 		typeKey := queryTypes[queryType-1]
 		stats.QueryTypes[typeKey] += numQueries
 
-		if replyType < 1 || replyType > len(replyTypes) {
+		if replyType < 0 || replyType > len(replyTypes) {
 			return nil, fmt.Errorf("unknown reply type: %d", replyType)
 		}
 
