@@ -139,7 +139,7 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 			return nil, fmt.Errorf("unknown reply type: %d", replyType)
 		}
 
-		replyKey := replyTypes[replyType-1]
+		replyKey := replyTypes[replyType]
 		stats.QueryReplies[replyKey] += numQueries
 
 		stats.ClientQueries[client] += numQueries
