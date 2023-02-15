@@ -1,6 +1,6 @@
 ## Pihole Exporter
 
-[![github](https://img.shields.io/github/checks-status/subtlepseudonym/pihole-exporter/master?logo=github)](https://github.com/subtlepseudonym/pihole-exporter) [![docker_pulls](https://img.shields.io/docker/pulls/subtlepseudonym/pihole-exporter)](https://hub.docker.com/r/subtlepseudonym/pihole-exporter)
+[![github](https://img.shields.io/github/checks-status/subtlepseudonym/pihole-exporter/master?logo=github)](https://github.com/subtlepseudonym/pihole-exporter) [![docker_pulls](https://img.shields.io/docker/pulls/subtlepseudonym/pihole-exporter)](https://hub.docker.com/r/subtlepseudonym/pihole-exporter)  [![kofi](https://img.shields.io/badge/ko--fi-Support%20me%20-hotpink?logo=kofi&logoColor=white)](https://ko-fi.com/subtlepseudonym)
 
 ### Running the container
 
