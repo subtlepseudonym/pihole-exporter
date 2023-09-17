@@ -1,5 +1,9 @@
 # Changelog
-## [0.0.11] -
+## [0.0.12] - 2023-09-17
+### Changed
+- Log warning rather than returning error on unknown enum values
+
+## [0.0.11] - 2022-11-17
 ### Changed
 - Use subtlepseudonym/healthcheck for docker healthcheck
 

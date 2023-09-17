@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -113,6 +114,7 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query db: %w", err)
 	}
+
 	for rows.Next() {
 		var (
 			queryType  int
@@ -129,14 +131,16 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 		}
 
 		if queryType < 1 || queryType > len(queryTypes) {
-			return nil, fmt.Errorf("unknown query type: %d", queryType)
+			log.Printf("WARN: unknown query type: %d", queryType)
+			continue
 		}
 
 		typeKey := queryTypes[queryType-1]
 		stats.QueryTypes[typeKey] += numQueries
 
 		if replyType < 0 || replyType > len(replyTypes) {
-			return nil, fmt.Errorf("unknown reply type: %d", replyType)
+			log.Printf("WARN: unknown reply type: %d", replyType)
+			continue
 		}
 
 		replyKey := replyTypes[replyType]
@@ -162,7 +166,8 @@ func queryPihole(db *sql.DB, since, now int64) (*PiholeStats, error) {
 			statusKey := queryStatuses[status]
 			stats.BlockedCNAMEQueries[statusKey] += numQueries
 		default:
-			return nil, fmt.Errorf("unexpected status: %d", status)
+			log.Printf("WARN: unexpected status: %d", status)
+			continue
 		}
 	}
 
